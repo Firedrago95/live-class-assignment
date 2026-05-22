@@ -13,6 +13,8 @@ import com.liveclass.notification.domain.OutboxEvent;
 import com.liveclass.notification.infrastructure.persistence.NotificationRepository;
 import com.liveclass.notification.infrastructure.persistence.OutboxEventRepository;
 import com.liveclass.notification.presentation.dto.NotificationSendRequest;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayNameGeneration(ReplaceUnderscores.class)
 class NotificationServiceTest {
 
     @Mock

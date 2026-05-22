@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -50,5 +51,34 @@ public class OutboxEvent {
         this.nextRetryAt = now;
         this.createdAt = now;
         this.updatedAt = now;
+    }
+
+    public void markAsSuccess() {
+        verifyNotTerminal();
+        this.status = OutboxStatus.SUCCESS;
+    }
+
+    public void processFailure(int maxRetries) {
+        verifyNotTerminal();
+
+        this.retryCount++;
+
+        if (this.retryCount >= maxRetries) {
+            this.status = OutboxStatus.FAILED;
+        } else {
+            long baseDelay = 2000L;
+            long exponentialDelay = baseDelay * (1L << this.retryCount);
+            long jitter = (long) (Math.random() * 1000);
+
+            this.nextRetryAt = LocalDateTime.now().plus(Duration.ofMillis(exponentialDelay + jitter));
+        }
+    }
+
+    private void verifyNotTerminal() {
+        if (this.status == OutboxStatus.SUCCESS || this.status == OutboxStatus.FAILED) {
+            throw new IllegalStateException(
+                "이미 종료된 상태(" + this.status + ")이므로 상태를 변경할 수 없습니다. (OutboxEvent ID: " + this.id + ")"
+            );
+        }
     }
 }
