@@ -45,12 +45,22 @@ public class Notification {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
+    private boolean isRead = false;
+
     @Builder
-    public Notification(String sourceEventId, String receiver, NotificationType type, NotificationChannel channel) {
+    public Notification(
+        String sourceEventId,
+        String receiver,
+        NotificationType type,
+        NotificationChannel channel,
+        boolean isRead
+    ) {
         this.sourceEventId = sourceEventId;
         this.receiver = receiver;
         this.type = type;
         this.channel = channel;
+        this.isRead = isRead;
         this.createdAt = LocalDateTime.now();
     }
 }

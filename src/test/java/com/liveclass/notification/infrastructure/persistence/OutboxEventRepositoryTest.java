@@ -2,7 +2,6 @@ package com.liveclass.notification.infrastructure.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.liveclass.notification.TestcontainersConfiguration;
 import com.liveclass.notification.domain.OutboxEvent;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,19 +13,13 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
-import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
-@DataJpaTest
-@Import(TestcontainersConfiguration.class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DisplayNameGeneration(ReplaceUnderscores.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
-class OutboxEventRepositoryTest {
+class OutboxEventRepositoryTest extends AbstractRepositoryTest {
 
     @Autowired
     private OutboxEventRepository outboxEventRepository;

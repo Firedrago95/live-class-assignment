@@ -7,6 +7,8 @@ import com.liveclass.notification.application.NotificationApplicationService;
 import com.liveclass.notification.domain.NotificationChannel;
 import com.liveclass.notification.domain.NotificationType;
 import com.liveclass.notification.presentation.dto.NotificationSendRequest;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -16,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
 @WebMvcTest(NotificationController.class)
+@DisplayNameGeneration(ReplaceUnderscores.class)
 class NotificationControllerTest {
 
     @Autowired
