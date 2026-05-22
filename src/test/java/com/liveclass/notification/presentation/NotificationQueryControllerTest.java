@@ -1,5 +1,7 @@
 package com.liveclass.notification.presentation;
 
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -25,9 +27,21 @@ class NotificationQueryControllerTest {
 
     @Test
     void 사용자_알림_목록_조회_API는_200_OK를_반환한다() throws Exception {
+        // when & then
         mockMvc.perform(get("/api/v1/users/user1/notifications")
                 .param("isRead", "false")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void 알림_이벤트_상태_조회_API는_200_OK를_반환한다() throws Exception {
+        // given
+        when(notificationQueryService.getNotificationStatus(anyLong())).thenReturn("PENDING");
+
+        // when & then
+        mockMvc.perform(get("/api/v1/notifications/outbox/1/status")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
     }
 }
