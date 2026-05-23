@@ -27,6 +27,7 @@
 ## 제약 사항 및 고도화 방안
 - **실패 이력 관리**: 현재는 마지막 실패 사유만 저장합니다. 향후 별도의 `OutboxEventErrorLog` 테이블을 분리하여, 회차별 실패 이력을 모두 보존하는 구조로 확장할수 있습니다.
 - **중복 발송 방지 (At-Least-Once 보장)**: 본 시스템은 '최소 한 번 발송'을 보장합니다. 외부 API 호출 성공 후 DB 반영 단계에서 실패할 경우 중복 발송 가능성이 있습니다. 이를 위해 수신 시스템 측에 `OutboxEvent ID`를 멱등키로 제공하는 방식을 적용할수 있습니다
+- **상태 관리의 확장성**: 현재는 일시적 장애와 영구적 장애를 `FAILED` 상태로 통합 관리하고 있습니다. 향후 `DEAD_LETTER` 상태로 격리하여 영구적 실패 건에 대한 자동 재시도 루프를 차단하고 수동 조치를 분리할 수 있습니다.
 
 ## 데이터 모델 및 인덱스 전략
 * **`Notification`**: 사용자에게 보여지는 최종 알림함 데이터 (수신자, 알림 타입, 발송 채널, 읽음 여부 등)
@@ -34,9 +35,13 @@
 * **인덱스 전략**: 워커의 폴링 성능 최적화를 위해 `outbox_events` 테이블에 `(status, next_retry_at)` 복합 인덱스를 적용하여 풀 스캔을 방지합니다.
 
 ## 주요 API 명세
-* **POST `/api/v1/notifications`**: 알림 발송 요청 (비동기 처리를 명시하기 위해 `202 Accepted` 반환)
-* **GET `/api/v1/notifications/outbox/{eventId}/status`**: 특정 알림 발송 이벤트의 현재 처리 상태(PENDING, SUCCESS, FAILED 등) 조회
-* **GET `/api/v1/users/{userId}/notifications`**: 수신자 기준 알림 목록 조회 (페이징 및 읽음/안읽음 상태 필터링 지원)
+* **알림 발송/조회 (Public)**
+  - `POST /api/v1/notifications`: 알림 발송 요청 (202 Accepted)
+  - `GET /api/v1/users/{userId}/notifications`: 수신자 알림 목록 조회 (페이징 및 읽음/안읽음 상태 필터링 지원)
+  - `GET /api/v1/notifications/outbox/{eventId}/status`: 특정 알림 발송 이벤트의 현재 처리 상태(PENDING, SUCCESS, FAILED 등) 조회
+* **운영/관리 (Admin)**
+  - `GET /api/v1/admin/notifications/failed`: 실패한 알림 이벤트 목록 조회
+  - `POST /api/v1/admin/notifications/retry/{eventId}`: 실패한 알림 수동 재시도
 
 ## 테스트 전략
 * **통합 테스트 (동시성 증명)**: `Testcontainers`를 활용하여 실제 PostgreSQL 환경을 구축하여, 로직을 검증했습니다.
