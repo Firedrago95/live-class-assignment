@@ -54,7 +54,7 @@ class OutboxEventRepositoryTest extends AbstractRepositoryTest {
             executorService.submit(() -> {
                 try {
                     transactionTemplate.executeWithoutResult(status -> {
-                        List<OutboxEvent> events = outboxEventRepository.findPendingEventsForUpdate(targetTime, 5);
+                        List<OutboxEvent> events = outboxEventRepository.findPendingEventsForUpdate(targetTime, targetTime.minusMinutes(5), 5);
                         totalFetchedSize.addAndGet(events.size());
 
                         try { Thread.sleep(100); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }

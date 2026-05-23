@@ -11,11 +11,15 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEvent, Long> 
 
     @Query(value = """
                    SELECT * FROM outbox_events
-                   WHERE status = 'PENDING'
-                     AND next_retry_at <= :now
+                   WHERE (status = 'PENDING'AND next_retry_at <= :now) 
+                      OR (status = 'PROCESSING' AND updated_at <= :timeout)
                    ORDER BY created_at ASC
                    LIMIT :limit
                    FOR UPDATE SKIP LOCKED
                    """, nativeQuery = true)
-    public List<OutboxEvent> findPendingEventsForUpdate(@Param("now") LocalDateTime now, @Param("limit") int limit);
+    public List<OutboxEvent> findPendingEventsForUpdate(
+        @Param("now") LocalDateTime now,
+        @Param("timeout") LocalDateTime timeout,
+        @Param("limit") int limit
+    );
 }

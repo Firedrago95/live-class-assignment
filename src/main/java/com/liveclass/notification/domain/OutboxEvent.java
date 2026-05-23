@@ -53,6 +53,11 @@ public class OutboxEvent {
         this.updatedAt = now;
     }
 
+    public void markAsProcessing() {
+        verifyNotTerminal();
+        this.status = OutboxStatus.PROCESSING;
+    }
+
     public void markAsSuccess() {
         verifyNotTerminal();
         this.status = OutboxStatus.SUCCESS;
@@ -71,6 +76,7 @@ public class OutboxEvent {
             long jitter = (long) (Math.random() * 1000);
 
             this.nextRetryAt = LocalDateTime.now().plus(Duration.ofMillis(exponentialDelay + jitter));
+            this.status = OutboxStatus.PENDING;
         }
     }
 

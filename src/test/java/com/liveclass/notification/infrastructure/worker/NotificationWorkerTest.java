@@ -1,17 +1,16 @@
 package com.liveclass.notification.infrastructure.worker;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.liveclass.notification.application.NotificationService;
 import com.liveclass.notification.domain.OutboxEvent;
-import com.liveclass.notification.domain.OutboxStatus;
 import com.liveclass.notification.infrastructure.external.ExternalNotificationClient;
-import com.liveclass.notification.infrastructure.persistence.OutboxEventRepository;
 import java.util.List;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
@@ -26,7 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class NotificationWorkerTest {
 
     @Mock
-    private OutboxEventRepository outboxEventRepository;
+    private NotificationService notificationService;
 
     @Mock
     private ExternalNotificationClient externalClient;
@@ -35,25 +34,31 @@ class NotificationWorkerTest {
     private NotificationWorker notificationWorker;
 
     @Test
-    void 외부_API_발송_성공_시_OutboxEvent의_상태가_SUCCESS로_변경된다() {
+    void 외부_API_발송_성공_시_서비스의_성공_처리_메서드를_호출한다() {
         // given
-        OutboxEvent event = new OutboxEvent(1L, "test");
-        when(outboxEventRepository.findPendingEventsForUpdate(any(), eq(50)))
+        OutboxEvent event = mock(OutboxEvent.class);
+        when(event.getId()).thenReturn(1L);
+        when(event.getPayload()).thenReturn("test-payload");
+
+        when(notificationService.fetchAndClaimPendingEvents(eq(50)))
             .thenReturn(List.of(event));
 
         // when
         notificationWorker.processPendingNotifications();
 
         // then
-        verify(externalClient, times(1)).send(any());
-        assertThat(event.getStatus()).isEqualTo(OutboxStatus.SUCCESS);
+        verify(externalClient, times(1)).send("test-payload");
+        verify(notificationService, times(1)).processSuccess(1L);
     }
 
     @Test
-    void 외부_API_발송_예외_발생_시_재시도_카운트가_증가하고_실패_처리를_진행한다() {
+    void 외부_API_발송_예외_발생_시_서비스의_실패_처리_메서드를_호출한다() {
         // given
-        OutboxEvent event = new OutboxEvent(1L, "test");
-        when(outboxEventRepository.findPendingEventsForUpdate(any(), eq(50)))
+        OutboxEvent event = mock(OutboxEvent.class);
+        when(event.getId()).thenReturn(1L);
+        when(event.getPayload()).thenReturn("test-payload");
+
+        when(notificationService.fetchAndClaimPendingEvents(eq(50)))
             .thenReturn(List.of(event));
 
         doThrow(new RuntimeException("External API Down")).when(externalClient).send(any());
@@ -62,7 +67,6 @@ class NotificationWorkerTest {
         notificationWorker.processPendingNotifications();
 
         // then
-        assertThat(event.getRetryCount()).isEqualTo(1);
-        assertThat(event.getStatus()).isEqualTo(OutboxStatus.PENDING);
+        verify(notificationService, times(1)).processFailure(1L, 3);
     }
 }
