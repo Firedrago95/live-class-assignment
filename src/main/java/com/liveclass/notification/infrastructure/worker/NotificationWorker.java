@@ -28,10 +28,16 @@ public class NotificationWorker {
 
         for (OutboxEvent event : events) {
             try {
-                externalClient.send(event.getPayload());
-                notificationService.processSuccess(event.getId());
+                boolean isSuccess = externalClient.send(event.getPayload());
+
+                if (isSuccess) {
+                    notificationService.processSuccess(event.getId());
+                } else {
+                    log.warn("[Worker] 외부 API 응답 실패. OutboxEventId: {}", event.getId());
+                    notificationService.processFailure(event.getId(), MAX_RETRIES);
+                }
             } catch (Exception e) {
-                log.warn("[Worker] 알림 발송 실패. OutboxEventId: {}, 사유: {}", event.getId(), e.getMessage());
+                log.error("[Worker] 알림 발송 중 예외 발생. 사유: {}", e.getMessage());
                 notificationService.processFailure(event.getId(), MAX_RETRIES);
             }
         }
