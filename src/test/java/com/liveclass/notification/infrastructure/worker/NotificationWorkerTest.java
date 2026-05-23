@@ -69,7 +69,7 @@ class NotificationWorkerTest {
 
         // then
         verify(externalClient, times(1)).send("test-payload");
-        verify(notificationService, times(1)).processFailure(1L, 3);
+        verify(notificationService, times(1)).processFailure(1L, 3, "외부 API 응답 실패");
     }
 
     @Test
@@ -87,6 +87,6 @@ class NotificationWorkerTest {
         notificationWorker.processPendingNotifications();
 
         // then
-        verify(notificationService, times(1)).processFailure(1L, 3);
+        verify(notificationService, times(1)).processFailure(1L, 3, "[RuntimeException] External API Down");
     }
 }

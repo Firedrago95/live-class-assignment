@@ -24,7 +24,7 @@ class OutboxEventTest {
         LocalDateTime beforeRetry = event.getNextRetryAt();
 
         // when
-        event.processFailure(3);
+        event.processFailure(3, "Test failure");
 
         // then
         assertThat(event.getRetryCount()).isEqualTo(1);
@@ -37,13 +37,13 @@ class OutboxEventTest {
         OutboxEvent event = new OutboxEvent(1L, "test");
 
         event.markAsProcessing();
-        event.processFailure(3);
+        event.processFailure(3, "Test failure 1");
 
         event.markAsProcessing();
-        event.processFailure(3);
+        event.processFailure(3, "Test failure 2");
 
         event.markAsProcessing();
-        event.processFailure(3);
+        event.processFailure(3, "Test failure 3");
 
         // then
         assertThat(event.getRetryCount()).isEqualTo(3);

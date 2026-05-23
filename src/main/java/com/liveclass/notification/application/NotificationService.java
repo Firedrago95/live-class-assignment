@@ -60,7 +60,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void processFailure(Long eventId, int maxRetries) {
-        outboxEventRepository.findById(eventId).ifPresent(event -> event.processFailure(maxRetries));
+    public void processFailure(Long eventId, int maxRetries, String reason) {
+        outboxEventRepository.findById(eventId).ifPresent(event -> event.processFailure(maxRetries, reason));
     }
 }

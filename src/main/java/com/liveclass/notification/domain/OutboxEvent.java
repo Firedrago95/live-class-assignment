@@ -48,6 +48,9 @@ public class OutboxEvent {
 
     private LocalDateTime nextRetryAt;
 
+    @Column(columnDefinition = "TEXT")
+    private String failureReason;
+
     @Builder
     public OutboxEvent(Long aggregateId, String payload) {
         this.aggregateId = aggregateId;
@@ -67,10 +70,11 @@ public class OutboxEvent {
         this.status = OutboxStatus.SUCCESS;
     }
 
-    public void processFailure(int maxRetries) {
+    public void processFailure(int maxRetries, String reason) {
         verifyNotTerminal();
 
         this.retryCount++;
+        this.failureReason = reason;
 
         if (this.retryCount >= maxRetries) {
             this.status = OutboxStatus.FAILED;

@@ -100,7 +100,7 @@ class NotificationServiceTest {
         when(outboxEventRepository.findById(1L)).thenReturn(Optional.of(event));
 
         // when
-        notificationService.processFailure(1L, 3);
+        notificationService.processFailure(1L, 3, "Test failure");
 
         // then
         assertThat(event.getRetryCount()).isEqualTo(1);
