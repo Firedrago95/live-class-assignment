@@ -14,6 +14,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 @Entity
 @Table(name = "outbox_events")
@@ -37,9 +39,14 @@ public class OutboxEvent {
 
     private int retryCount;
 
-    private LocalDateTime nextRetryAt;
+    @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    private LocalDateTime nextRetryAt;
 
     @Builder
     public OutboxEvent(Long aggregateId, String payload) {
@@ -47,10 +54,7 @@ public class OutboxEvent {
         this.payload = payload;
         this.status = OutboxStatus.PENDING;
         this.retryCount = 0;
-        LocalDateTime now = LocalDateTime.now();
-        this.nextRetryAt = now;
-        this.createdAt = now;
-        this.updatedAt = now;
+        this.nextRetryAt = LocalDateTime.now();
     }
 
     public void markAsProcessing() {
