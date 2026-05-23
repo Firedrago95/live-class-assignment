@@ -1,6 +1,7 @@
 package com.liveclass.notification.infrastructure.persistence;
 
 import com.liveclass.notification.domain.OutboxEvent;
+import com.liveclass.notification.domain.OutboxStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,11 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEvent, Long> 
         @Param("timeout") LocalDateTime timeout,
         @Param("limit") int limit
     );
+
+    @Query("""
+           SELECT o FROM OutboxEvent o
+           WHERE o.status = :outboxStatus
+           ORDER BY o.updatedAt DESC
+           """)
+    List<OutboxEvent> findByStatus(@Param("outboxStatus") OutboxStatus outboxStatus);
 }

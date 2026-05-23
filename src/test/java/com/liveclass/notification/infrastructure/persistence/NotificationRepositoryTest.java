@@ -47,7 +47,6 @@ class NotificationRepositoryTest extends AbstractRepositoryTest {
     @Test
     void 읽음_상태에_따라_필터링된다() {
         // given
-        // given
         String receiverId = "user1";
 
         Notification readNotification = Notification.builder()

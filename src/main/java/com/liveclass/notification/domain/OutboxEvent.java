@@ -88,6 +88,20 @@ public class OutboxEvent {
         }
     }
 
+    public void manualRetry() {
+        if (this.status != OutboxStatus.FAILED && this.status != OutboxStatus.DEAD_LETTER) {
+            throw new IllegalStateException("수동 재시도는 FAILED 또는 DEAD_LETTER 상태에서만 가능합니다. 현재 상태: " + this.status);
+        }
+
+        this.status = OutboxStatus.PENDING;
+        this.retryCount = 0;
+        this.nextRetryAt = LocalDateTime.now();
+
+        if (this.failureReason != null) {
+            this.failureReason = "[수동 재시도됨] " + this.failureReason;
+        }
+    }
+
     private void verifyNotTerminal() {
         if (this.status == OutboxStatus.SUCCESS || this.status == OutboxStatus.FAILED) {
             throw new IllegalStateException(
