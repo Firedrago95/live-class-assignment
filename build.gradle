@@ -2,7 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '4.0.6'
 	id 'io.spring.dependency-management' version '1.1.7'
-	id 'jacoco'
+	id 'org.asciidoctor.jvm.convert' version '4.0.0'
 }
 
 group = 'com.liveclass'
@@ -16,6 +16,10 @@ java {
 
 repositories {
 	mavenCentral()
+}
+
+configurations {
+	asciidoctorExt
 }
 
 dependencies {
@@ -34,32 +38,35 @@ dependencies {
 	testCompileOnly 'org.projectlombok:lombok'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testAnnotationProcessor 'org.projectlombok:lombok'
+
+	// REST Docs
+	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 }
 
-jacoco {
-	toolVersion = "0.8.11"
+ext {
+	snippetsDir = file('build/generated-snippets')
 }
 
 test {
 	useJUnitPlatform()
-	finalizedBy 'jacocoTestReport'
+	outputs.dir snippetsDir
 }
 
-jacocoTestReport {
+asciidoctor {
+	inputs.dir snippetsDir
+	configurations 'asciidoctorExt'
 	dependsOn test
-	reports {
-		html.required = true
-		xml.required = false
-		csv.required = false
-	}
-	afterEvaluate {
-		classDirectories.setFrom(files(classDirectories.files.collect {
-			fileTree(dir: it, exclude: [
-					"**/dto/**",
-					"**/config/**",
-					"**/exception/**",
-					"**/*Application*"
-			])
-		}))
+	baseDirFollowsSourceFile()
+}
+
+asciidoctor.doFirst {
+	delete file('src/main/resources/static/docs')
+}
+
+bootJar {
+	dependsOn asciidoctor
+	from("${asciidoctor.outputDir}") {
+		into 'static/docs'
 	}
 }

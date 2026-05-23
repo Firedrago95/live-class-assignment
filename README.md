@@ -5,7 +5,7 @@
 ## 기술스택
 * **Language & Framework:** Java 21, Spring Boot 4.0.6
 * **Database:** PostgreSQL (`SKIP LOCKED`를 활용한 워커 동시성 제어)
-* **Test:** JUnit5, Mockito, MockMvc, Testcontainers, Jacoco
+* **Test:** JUnit5, Mockito, MockMvc, Testcontainers
 * **Deployment:** Docker
 
 ## 아키텍쳐 및 구현 전략 
@@ -39,17 +39,26 @@
 * **GET `/api/v1/users/{userId}/notifications`**: 수신자 기준 알림 목록 조회 (페이징 및 읽음/안읽음 상태 필터링 지원)
 
 ## 테스트 전략
-* **통합 테스트 (동시성 증명)**: `Testcontainers`를 활용하여 실제 PostgreSQL 환경을 구축하고, 멀티스레드 환경에서 `FOR UPDATE SKIP LOCKED`를 통한 동시성 제어 및 병렬 처리 무결성을 물리 DB 레벨에서 완벽하게 증명했습니다.
-* **단위 테스트 (도메인 무결성)**: 도메인 객체(`OutboxEvent`)의 지수 백오프 기반 재시도 시간 계산 및 상태 전이 가드 클로즈(Guard Clause) 로직을 순수 자바 코드로 철저하게 검증했습니다.
+* **통합 테스트 (동시성 증명)**: `Testcontainers`를 활용하여 실제 PostgreSQL 환경을 구축하여, 로직을 검증했습니다.
+* **단위 테스트 (도메인 무결성)**: 서비스 계층과 도메인 계층은 `Mock`을 활용하여 비지니스 로직을 검증했습니다.
 
 ## 실행 방법
-Docker Compose를 활용하여 로컬 PostgreSQL DB를 실행한 후, 애플리케이션을 구동합니다.
 ```bash
-# 1. PostgreSQL 컨테이너 실행
-docker-compose up -d
+# 전체 실행 (DB + 앱)
+docker compose up --build -d
 
-# 2. 애플리케이션 실행
-./gradlew bootRun
+# 종료
+docker compose down
+```
+
+## API 문서 (REST Docs)
+```bash
+# 테스트 실행 및 문서 생성
+./gradlew test
+
+# HTML 문서 빌드 후 확인
+./gradlew asciidoctor
+open build/docs/asciidoc/index.html
 ```
 
 ## AI 활용내역
