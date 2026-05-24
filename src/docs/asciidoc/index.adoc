@@ -1,0 +1,35 @@
+= Notification System API 문서
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+== 알림 발송
+
+operation::notification-send[snippets='curl-request,http-request,http-response,request-body,response-body']
+
+== 알림 읽음 처리
+
+operation::notification-read[snippets='curl-request,http-request,http-response,request-body,response-body']
+
+== 알림 읽음 처리 (충돌)
+
+operation::notification-read-conflict[snippets='curl-request,http-request,http-response,request-body,response-body']
+
+== 알림 상태 확인
+
+operation::notification-status-check[snippets='curl-request,http-request,http-response,request-body,response-body']
+
+== 사용자 알림 목록
+
+operation::notification-user-list[snippets='curl-request,http-request,http-response,request-body,response-body']
+
+== 관리자 - 실패 알림 조회
+
+operation::admin-notifications-failed[snippets='curl-request,http-request,http-response,request-body,response-body']
+
+== 관리자 - 실패 알림 재시도
+
+operation::admin-notifications-retry[snippets='curl-request,http-request,http-response,request-body,response-body']
