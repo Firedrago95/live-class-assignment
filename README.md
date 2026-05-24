@@ -72,4 +72,4 @@ open build/docs/asciidoc/index.html
 ```
 
 ## AI 활용내역
-- ** 아키텍처 설계 방향성 논의: ** 메시지 브로커 없는 환경에서 유실을 막기 위한 'Transactional Outbox Pattern' 도입 및 트랜잭션 범위 분리 전략 등 아키텍처 설계의 페어 프로그래밍 파트너로 활용했습니다.
+- **아키텍처 설계 방향성 논의:** 메시지 브로커 없는 환경에서 유실을 막기 위한 'Transactional Outbox Pattern' 도입 및 트랜잭션 범위 분리 전략 등 아키텍처 설계의 페어 프로그래밍 파트너로 활용했습니다.
