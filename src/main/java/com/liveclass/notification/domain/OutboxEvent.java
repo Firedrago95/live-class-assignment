@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -18,7 +19,13 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 @Entity
-@Table(name = "outbox_events")
+@Table(
+    name = "outbox_events",
+    indexes = {
+        @Index(name = "idx_outbox_pending", columnList = "status, next_retry_at"),
+        @Index(name = "idx_outbox_processing", columnList = "status, updated_at")
+    }
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OutboxEvent {
@@ -44,6 +51,7 @@ public class OutboxEvent {
     private LocalDateTime createdAt;
 
     @LastModifiedDate
+    @Column(updatable = false)
     private LocalDateTime updatedAt;
 
     private LocalDateTime nextRetryAt;

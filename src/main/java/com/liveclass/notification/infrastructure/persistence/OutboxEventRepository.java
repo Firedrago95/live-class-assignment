@@ -18,7 +18,7 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEvent, Long> 
                    LIMIT :limit
                    FOR UPDATE SKIP LOCKED
                    """, nativeQuery = true)
-    public List<OutboxEvent> findPendingEventsForUpdate(
+    List<OutboxEvent> findPendingEventsForUpdate(
         @Param("now") LocalDateTime now,
         @Param("timeout") LocalDateTime timeout,
         @Param("limit") int limit
