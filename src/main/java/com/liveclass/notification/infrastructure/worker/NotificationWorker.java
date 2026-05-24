@@ -26,6 +26,10 @@ public class NotificationWorker {
 
         log.info("[Worker] {}개의 대기 중인 알림 발송을 시작합니다.", events.size());
 
+        sendAndUpdateNotifications(events);
+    }
+
+    private void sendAndUpdateNotifications(List<OutboxEvent> events) {
         for (OutboxEvent event : events) {
             try {
                 boolean isSuccess = externalClient.send(event.getPayload());
