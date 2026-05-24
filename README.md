@@ -25,6 +25,9 @@
   - ** 지수 백오프(재시도 전략): ** 일시적인 외부 장애에 대비해 지수 백오프와 지터를 적용하여 외부 시스템 부하를 방지하는 재시도 로직을 구현했습니다.
   - ** 스레드 풀 최적화 및 배압 제어: ** 스프링 `@Scheduled`의 기본 싱글 스레드 동작 방식으로 인해 발생할 수 있는 스케줄러 간 블로킹 및 성능 병목을 예방하고자 `spring.task.scheduling.pool.size=5` 설정을 도입했습니다.
 
+### 3단계: 동시성 제어 및 예외처리
+  - ** 다중 기기 읽음 처리: ** `Notification` 엔티티에 `@Version`을 활용한 낙관적 락을 적용하여, 다중 기기에서 동시에 읽음 처리 요청이 들어와도 데이터 정합성을 유지합니다.
+
 ## 제약 사항 및 고도화 방안
 - **실패 이력 관리**: 현재는 마지막 실패 사유만 저장합니다. 향후 별도의 `OutboxEventErrorLog` 테이블을 분리하여, 회차별 실패 이력을 모두 보존하는 구조로 확장할수 있습니다.
 - **중복 발송 방지 (At-Least-Once 보장)**: 본 시스템은 '최소 한 번 발송'을 보장합니다. 외부 API 호출 성공 후 DB 반영 단계에서 실패할 경우 중복 발송 가능성이 있습니다. 이를 위해 수신 시스템 측에 `OutboxEvent ID`를 멱등키로 제공하는 방식을 적용할수 있습니다
@@ -39,6 +42,7 @@
 * **알림 발송/조회 (Public)**
   - `POST /api/v1/notifications`: 알림 발송 요청 (202 Accepted)
   - `GET /api/v1/users/{userId}/notifications`: 수신자 알림 목록 조회 (페이징 및 읽음/안읽음 상태 필터링 지원)
+  - `PATCH /api/v1/notifications/{notificationId}/read`: 알림 읽음 처리 (낙관적 락 적용, 409 Conflict 대응)
   - `GET /api/v1/notifications/outbox/{eventId}/status`: 특정 알림 발송 이벤트의 현재 처리 상태(PENDING, SUCCESS, FAILED 등) 조회
 * **운영/관리 (Admin)**
   - `GET /api/v1/admin/notifications/failed`: 실패한 알림 이벤트 목록 조회

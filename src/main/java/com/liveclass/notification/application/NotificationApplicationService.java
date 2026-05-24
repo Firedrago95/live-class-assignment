@@ -20,4 +20,8 @@ public class NotificationApplicationService {
             log.info("이미 접수된 알람입니다. 무시합니다.");
         }
     }
+
+    public void readNotification(Long notificationId) {
+        notificationService.readNotification(notificationId);
+    }
 }

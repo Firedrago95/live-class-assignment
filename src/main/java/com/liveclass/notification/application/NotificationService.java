@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class NotificationService {
 
     public static final int TIMEOUT_LIMIT = 5;
@@ -22,7 +23,6 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final OutboxEventRepository outboxEventRepository;
 
-    @Transactional
     public void registerNotification(NotificationSendRequest request) {
         Notification notification = Notification.builder()
             .sourceEventId(request.sourceEventId())
@@ -41,7 +41,6 @@ public class NotificationService {
         outboxEventRepository.save(outboxEvent);
     }
 
-    @Transactional
     public List<OutboxEvent> fetchAndClaimPendingEvents(int batchSize) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime timeout = now.minusMinutes(TIMEOUT_LIMIT);
@@ -54,13 +53,18 @@ public class NotificationService {
         return events;
     }
 
-    @Transactional
     public void processSuccess(Long eventId) {
         outboxEventRepository.findById(eventId).ifPresent(OutboxEvent::markAsSuccess);
     }
 
-    @Transactional
     public void processFailure(Long eventId, int maxRetries, String reason) {
         outboxEventRepository.findById(eventId).ifPresent(event -> event.processFailure(maxRetries, reason));
+    }
+
+    public void readNotification(Long notificationId) {
+        Notification notification = notificationRepository.findById(notificationId)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 알림입니다."));
+
+        notification.markAsRead();
     }
 }

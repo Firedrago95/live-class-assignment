@@ -106,4 +106,35 @@ class NotificationServiceTest {
         assertThat(event.getRetryCount()).isEqualTo(1);
         assertThat(event.getStatus()).isEqualTo(OutboxStatus.PENDING);
     }
+
+    @Test
+    void 알림_읽음_처리_시_상태가_변경되어야_한다() {
+        // given
+        Notification notification = Notification.builder()
+            .sourceEventId("event-1")
+            .receiver("user-1")
+            .type(NotificationType.PAYMENT_SUCCESS)
+            .channel(NotificationChannel.EMAIL)
+            .isRead(false)
+            .build();
+
+        when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification));
+
+        // when
+        notificationService.readNotification(1L);
+
+        // then
+        assertThat(notification.isRead()).isTrue();
+    }
+
+    @Test
+    void 존재하지_않는_알림_읽음_처리_시_예외가_발생한다() {
+        // given
+        when(notificationRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // when & then
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            notificationService.readNotification(1L);
+        });
+    }
 }

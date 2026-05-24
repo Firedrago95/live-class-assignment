@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -48,6 +49,9 @@ public class Notification {
     @Column(nullable = false)
     private boolean isRead = false;
 
+    @Version
+    private Long version;
+
     @Builder
     public Notification(
         String sourceEventId,
@@ -62,5 +66,12 @@ public class Notification {
         this.channel = channel;
         this.isRead = isRead;
         this.createdAt = LocalDateTime.now();
+    }
+
+    public void markAsRead() {
+        if (this.isRead) {
+            return;
+        }
+        this.isRead = true;
     }
 }
