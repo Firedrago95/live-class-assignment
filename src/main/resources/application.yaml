@@ -2,9 +2,11 @@ spring:
   application:
     name: notification-system
 
-  threads:
-    virtual:
-      enabled: true
+  task:
+    scheduling:
+      pool:
+        size: 5
+      thread-name-prefix: notification-worker-
 
   datasource:
     url: jdbc:postgresql://localhost:5432/notification_db
