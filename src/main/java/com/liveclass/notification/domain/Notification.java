@@ -2,6 +2,7 @@ package com.liveclass.notification.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
@@ -15,13 +16,16 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "notifications", uniqueConstraints = {
     @UniqueConstraint(name = "uk_source_event_receiver_type",
                       columnNames = {"source_event_id", "receiver_id", "type"})
 })
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notification {
@@ -44,6 +48,7 @@ public class Notification {
     @Column(nullable = false)
     private NotificationChannel channel;
 
+    @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -70,7 +75,6 @@ public class Notification {
         this.type = type;
         this.channel = channel;
         this.isRead = isRead;
-        this.createdAt = LocalDateTime.now();
     }
 
     public void markAsRead() {
